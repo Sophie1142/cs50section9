@@ -5,7 +5,11 @@ from tempfile import mkdtemp
 app = Flask(__name__)
 
 # TODO: Configure session parameters
+app.config["SESSION_FILE_DIR"] = mkdtemp()
+app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_TYPE"] = "filesystem"
 
+Session(app)
 
 # Store board size
 BOARD_SIZE = 3
@@ -14,13 +18,29 @@ BOARD_SIZE = 3
 def index():
 
     # Set up 'board' in session to store player moves
+    if "board" not in session:
+        session["board"] = [[None, None, None], [None, None, None], [None, None, None]]
 
     # Set up 'turn' to store current player ('X' or 'O')
+    if "turn" not in session:
+        session["turn"] = "X"
 
     # Set up 'history' of moves in session ()
+    if "history" not in session:
+        session["history"] = []
 
 
     # Check for horizontal win (hint: consider using set() function)
+    for i in range(BOARD_SIZE):
+        if (len(set(session["board"][i])) == 1) and session["board"][i][0] != None:
+            # Announce winner
+            return render_template("game.html", winner=session["board"][i][0])
+
+    # Check for column win
+    for i in range(BOARD_SIZE):
+        if len(set((session["board"][0][i], session["board"][1][i], session["board"][2][i]))) == 1 and session["board"][0][i] != None:
+            # Announce winner
+            return render_template("game.html", winner=session["board"][0][i])
 
     # Check for column win
 
@@ -37,18 +57,22 @@ def index():
 @app.route("/play/<int:row>/<int:col>")
 def play(row, col):
 
-    # Capture who just played
-
+    # Capture who just played (X or o)
+    session["board"][row][col]= session["turn"]
 
     # Add move to history
-
+    session["history"] += [[session['turn'], row, col]]
 
     # Error check
     for move in session["history"]:
         print(*move)
 
     # Alternate turns
+    if session["turn"] == "X":
+        session["turn"] = "O"
 
+    elif session["turn"] == "O":
+        session["turn"] = "X"
 
     return redirect(url_for("index"))
 

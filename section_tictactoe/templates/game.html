@@ -12,8 +12,26 @@
             {% if error %}
             <h2> {{ error }}</h2>
             {% endif %}
+
+            {% if winner %}
+            <h2> {{ winner }} has won! </h2>
+            {% endif %}
+
             <table>
                 <!-- TODO: Dynamically update tictactoe board-->
+                {% for i in range(3) %}
+                <tr>
+                    {% for j in range(3) %}
+                    <td>
+                    {% if session.board[i][j] %}
+                        {{ session.board[i][j] }}
+                    {% else %}
+                        <a href="{{ url_for('play', row=i, col=j) }}">Play {{ session.turn }} here. </a>
+                    {% endif %}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
             </table>
             <button type="button"><a href="/reset">Reset Game</a></button>
             <button type="button"><a href="/undo">Undo Move</a></button>
