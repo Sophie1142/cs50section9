@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link href="/static/styles.css" rel="stylesheet">
+        <title>Tic Tac Toe</title>
+    </head>
+    <body>
+        <div class="bodydiv">
+            <h1> Tic Tac Toe</h1>
+            <!-- TODO: Announce winner if there is one-->
+
+            {% if error %}
+            <h2> {{ error }}</h2>
+            {% endif %}
+            <table>
+                <!-- TODO: Dynamically update tictactoe board-->
+            </table>
+            <button type="button"><a href="/reset">Reset Game</a></button>
+            <button type="button"><a href="/undo">Undo Move</a></button>
+        </div>
+    </body>
+</html>
