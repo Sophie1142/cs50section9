@@ -7,8 +7,6 @@
     <body>
         <div class="bodydiv">
             <h1> Tic Tac Toe</h1>
-            <!-- TODO: Announce winner if there is one-->
-
             {% if error %}
             <h2> {{ error }}</h2>
             {% endif %}
@@ -28,7 +26,7 @@
                     {% if session.board[i][j] %}
                         {{ session.board[i][j] }}
                     {% else %}
-                    <!--Could have just as easily used buttons, or onclick event listener on td tags, etc -->
+                    <!--Could have just as easily used buttons, or onclick event listener on td tags, etc. 'Tis a design choice! -->
                     <!--Documentation on url_for: https://flask.palletsprojects.com/en/1.1.x/quickstart/-->
                         <a href="{{ url_for('play', row=i, col=j) }}">Play {{ session.turn }} here. </a>
                     {% endif %}
