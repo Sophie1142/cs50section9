@@ -18,14 +18,18 @@
             {% endif %}
 
             <table>
-                <!-- TODO: Dynamically update tictactoe board-->
+                <!-- Dynamically update tictactoe board-->
                 {% for i in range(3) %}
                 <tr>
                     {% for j in range(3) %}
                     <td>
+                        <!--Note that you can use session directly without passing it into render_template function -->
+                        <!--It's globally accessible to Flask application-->
                     {% if session.board[i][j] %}
                         {{ session.board[i][j] }}
                     {% else %}
+                    <!--Could have just as easily used buttons, or onclick event listener on td tags, etc -->
+                    <!--Documentation on url_for: https://flask.palletsprojects.com/en/1.1.x/quickstart/-->
                         <a href="{{ url_for('play', row=i, col=j) }}">Play {{ session.turn }} here. </a>
                     {% endif %}
                     </td>

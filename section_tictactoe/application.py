@@ -2,9 +2,13 @@ from flask import Flask, render_template, session, redirect, url_for
 from flask_session import Session
 from tempfile import mkdtemp
 
+# For more info:
+# https://pythonhow.com/how-a-flask-app-works/
+# https://www.freecodecamp.org/news/whats-in-a-python-s-name-506262fe61e8/
 app = Flask(__name__)
 
-# TODO: Configure session parameters
+# Configure session parameters
+# https://flask-session.readthedocs.io/en/latest/
 app.config["SESSION_FILE_DIR"] = mkdtemp()
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
@@ -16,36 +20,53 @@ BOARD_SIZE = 3
 
 @app.route("/")
 def index():
+    # For learning purposes
+    print(__name__)
 
     # Set up 'board' in session to store player moves
     if "board" not in session:
-        session["board"] = [[None, None, None], [None, None, None], [None, None, None]]
+        session["board"] = [[None, None, None],
+                            [None, None, None],
+                            [None, None, None]]
 
     # Set up 'turn' to store current player ('X' or 'O')
     if "turn" not in session:
         session["turn"] = "X"
 
-    # Set up 'history' of moves in session ()
+    # Set up 'history' of moves in session
     if "history" not in session:
         session["history"] = []
 
+    # Winner variable so we call render_template only once
+    winner = None
 
     # Check for horizontal win (hint: consider using set() function)
     for i in range(BOARD_SIZE):
-        if (len(set(session["board"][i])) == 1) and session["board"][i][0] != None:
-            # Announce winner
-            return render_template("game.html", winner=session["board"][i][0])
+        if session["board"][i][0] != None and (len(set(session["board"][i])) == 1):
+            winner=session["board"][i][0]
 
     # Check for column win
     for i in range(BOARD_SIZE):
-        if len(set((session["board"][0][i], session["board"][1][i], session["board"][2][i]))) == 1 and session["board"][0][i] != None:
-            # Announce winner
-            return render_template("game.html", winner=session["board"][0][i])
+        if session["board"][0][i] != None and len(set((session["board"][0][i],
+                                                       session["board"][1][i],
+                                                       session["board"][2][i]))) == 1 :
+            winner=session["board"][0][i]
 
-    # Check for column win
+    # Check for left diagonal win
+    if session["board"][0][0] != None and len(set([session["board"][0][0],
+                                                   session["board"][1][1],
+                                                   session["board"][2][2]])) == 1:
+        winner=session["board"][0][i]
 
+    # Check for right diagonal win
+    if session["board"][0][2] != None and len(set([session["board"][0][2],
+                                                   session["board"][1][1],
+                                                   session["board"][2][0]])) == 1:
+        winner = session['board'][0][2]
 
-    # Don't worry about horizontal wins for now
+    # Announce winner if one exists
+    if winner:
+        return render_template("game.html", winner=winner)
 
     # Error check
     for move in session["board"]:
@@ -74,24 +95,27 @@ def play(row, col):
     elif session["turn"] == "O":
         session["turn"] = "X"
 
+    # Could also just use return redirect (as I do below), but wanted to show another example of url_for
+    # https://flask.palletsprojects.com/en/1.1.x/quickstart/
     return redirect(url_for("index"))
 
 @app.route("/reset")
 def reset():
-    # session["board"] = [[None, None, None], [None, None, None], [None, None, None]]
-    if "board" in session:
-        del session["board"]
-    session["turn"] = "X"
-    session["history"] = []
+    # Delete all the session variables
+    # (a for loop throws an error that size of dictionary
+    # changed during iteration, so we'll go with this for now)
+    del session["board"]
+    del session["turn"]
+    del session["history"]
+
 
     return redirect("/")
 
 @app.route("/undo")
 def undo():
     # delete from session board the last move played (aka session board index)
-    # session board index = history[-1]
     if session['history'] == []:
-        return render_template("game.html", error = "Sorry, there are no moves to undo", game=session["board"], turn=session["turn"])
+        return render_template("game.html", error = "Sorry, there are no moves to undo")
 
     else:
         # Delete X or 0 from that grid cell
