@@ -1,3 +1,4 @@
+# Adapted from Brian Yu's CS50 Beyond, Winter 2018-2019
 from flask import Flask, render_template, session, redirect, url_for
 from flask_session import Session
 from tempfile import mkdtemp
